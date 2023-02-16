@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { differenceInCalendarDays } from 'date-fns';
 import { calculateWaterCharges } from './waterCharges';
 
-export default function WaterBill({ tenant, address }) {
+export default function WaterBill({ tenant, address, onSave }) {
     let helperDate = new Date();
     helperDate.setDate(1);
     const [toDate, setToDate] = useState(new Date(helperDate));
@@ -15,6 +15,17 @@ export default function WaterBill({ tenant, address }) {
     const usageCF = endReading - startReading;
 
     const charges = calculateWaterCharges(daysOfService, usageCF);
+
+    function handleSave() {
+        onSave({
+            key: toDate.valueOf(),
+            toDate: toDate.toLocaleDateString(),
+            fromDate: fromDate.toLocaleDateString(),
+            startReading: startReading,
+            endReading: endReading,
+            charges: charges,
+        });
+    }
 
     return (
         <>
@@ -86,6 +97,7 @@ export default function WaterBill({ tenant, address }) {
                 </tbody>
 
             </table>
+            <button onClick={handleSave}>Save</button>
         </>
     );
 }
