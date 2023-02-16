@@ -1,89 +1,46 @@
 import { useState } from 'react';
-import { differenceInCalendarDays } from 'date-fns';
-import { calculateWaterCharges } from './waterCharges';
+import WaterBill from './WaterBill';
 
 export default function WaterBills() {
-    const [fromDate, setFromDate] = useState(new Date('1/5/23'));
-    const [toDate, setToDate] = useState(new Date('2/2/23'));
-    const [startReading, setStartReading] = useState(266556);
-    const [endReading, setEndReading] = useState(267043);
+    const [units, setUnits] = useState([]);
+    const [selectedUnit, setSelectedUnit] = useState(0);
 
-    const daysOfService = fromDate.valueOf() && toDate.valueOf() && differenceInCalendarDays(toDate, fromDate);
-    const usageCF = endReading - startReading;
-
-    const charges = calculateWaterCharges(daysOfService, usageCF);
+    function handleSubmit(e) {
+        e.preventDefault();
+        if (!units.find(unit => unit.address == e.target.elements.address.value)) {
+            setUnits([ ...units, {key: e.target.elements.address.value, address: e.target.elements.address.value, tenant: e.target.elements.tenant.value}]);
+            e.target.reset();
+        }
+    }
 
     return (
         <>
-            <h1>Water Bill</h1>
-            <table>
-                <tbody>
-                    <tr>
-                        <th>Tenant</th>
-                        <td>Keirra</td>
-                    </tr>
-                    <tr>
-                        <th>Address</th>
-                        <td>931 Hidden Acres</td>
-                    </tr>
-                    <tr>
-                        <th>Service Period From</th>
-                        <td>
-                            <input 
-                                placeholder={fromDate.toLocaleDateString()}
-                                onBlur={(e) => e.target.value && setFromDate(new Date(e.target.value))}
-                            />
-                        </td>
-                    </tr>
-                    <tr>
-                        <th>Service Period To</th>
-                        <td>
-                            <input 
-                                placeholder={toDate.toLocaleDateString()}
-                                onBlur={(e) => e.target.value && setToDate(new Date(e.target.value))}
-                            />
-                        </td>
-                    </tr>
-                    <tr>
-                        <th>Days of Service</th>
-                        <td>{daysOfService}</td>
-                    </tr>
-                    <tr>
-                        <th>Starting Reading (CF)</th>
-                        <td>
-                            <input
-                                placeholder={startReading}
-                                onChange={(e) => setStartReading(e.target.value)}
-                            />
-                        </td>
-                    </tr>
-                    <tr>
-                        <th>Ending Reading (CF)</th>
-                        <td>
-                            <input
-                                placeholder={endReading}
-                                onChange={(e) => setEndReading(e.target.value)}
-                            />
-                        </td>
-                    </tr>
-                    <tr>
-                        <th>Usage (CF)</th>
-                        <td>{usageCF}</td>
-                    </tr>
-                    <tr>
-                        <th>Usage (CCF) (1 CCF = 100 CF)</th>
-                        <td>{usageCF / 100}</td>
-                    </tr>
-                    {charges.map(charge => 
-                        <tr key={charge.label}>
-                            <th>{charge.label}</th>
-                            <td>{charge.amount}</td>
-                        </tr>
+            <nav>
+                <hr />
+                THE WATER WORKS
+                <hr />
+                <ol>
+                    {units.map((unit, i) => 
+                        <li key={unit.address} style={{fontWeight: (selectedUnit == i ? 'bold' : 'normal')}}>
+                            <button onClick={() => setSelectedUnit(i)}>
+                                {unit.address}
+                            </button>
+                        </li>
                     )}
-                </tbody>
-
-            </table>
+                </ol>
+                <form onSubmit={handleSubmit}>
+                    <input placeholder='New Tenant' name='tenant'></input>
+                    <input placeholder='New Address' name='address'></input>
+                    <button>Add</button>
+                </form>
+            </nav>
+            {units[selectedUnit] && (
+                <WaterBill 
+                    key={units[selectedUnit].address}
+                    tenant={units[selectedUnit].tenant} 
+                    address={units[selectedUnit].address} 
+                />
+            )}
         </>
     );
 }
-

@@ -4,7 +4,9 @@ import './index.css';
 
 import WaterBills from './WaterBills';
 
-// ========================================
-
 const root = ReactDOM.createRoot(document.getElementById("root"));
-root.render(<WaterBills />);
+root.render(
+    <React.StrictMode>
+        <WaterBills />
+    </React.StrictMode>
+);
